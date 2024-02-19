@@ -12,7 +12,7 @@
 #include <stdio.h>
 #define dbg(__x__)  printf __x__
 #else
-#define dbg(__x__)  printf __x__
+#define dbg(__x__)
 #endif
 
 
@@ -106,24 +106,33 @@ int VNCKeyMouse::randint(int min, int max)
     return dis(gen);
 }
 
+static std::unordered_map<uint32_t, uint32_t> key_map = {
+    { VK_RETURN,        XK_Return },
+    { VK_ESCAPE,        XK_Escape },
+    { VK_BACK,          XK_BackSpace },
+    { VK_TAB,           XK_Tab },
+    { VK_SPACE,         XK_space },
+
+    { VK_CAPITAL,       XK_Caps_Lock },
+    { VK_LSHIFT,        XK_Shift_L },
+    { VK_LCONTROL,      XK_Control_L },
+    { VK_LMENU,         XK_Meta_L },
+    { VK_LWIN,          XK_Super_L },
+};
+
 uint32_t VNCKeyMouse::convert_to_rfb(uint32_t vkcode)
 {
-    static std::unordered_map<uint32_t, uint32_t> key_map = {
-        { VK_RETURN,        XK_Return },
-        { VK_ESCAPE,        XK_Escape },
-        { VK_BACK,          XK_BackSpace },
-        { VK_TAB,           XK_Tab },
-        { VK_SPACE,         XK_space },
-
-        { VK_CAPITAL,       XK_Caps_Lock },
-        { VK_LSHIFT,        XK_Shift_L },
-        { VK_LCONTROL,      XK_Control_L },
-        { VK_LMENU,         XK_Meta_L },
-        { VK_LWIN,          XK_Super_L },
-    };
-
+    //if (key_map.find(vkcode) != key_map.end()) {
+    //    return key_map[vkcode];
+    //}
     if (vkcode >= VK_F1 && vkcode <= VK_F12) {
         return XK_F1 + vkcode - VK_F1;
+    }
+    if (vkcode >= 'A' && vkcode <= 'Z') {
+        return vkcode;
+    }
+    if (vkcode >= '0' && vkcode <= '9') {
+        return vkcode;
     }
     return key_map[vkcode];
 }
@@ -379,25 +388,25 @@ bool VNCKeyMouse::mouse_wheel(int wheel)
 bool VNCKeyMouse::left_button_down()
 {
     this->old_button_mask |= 1;     // bit 00000001
-    return this->pointer_event(last_mouse_x, last_mouse_x, old_button_mask);
+    return this->pointer_event(last_mouse_x, last_mouse_y, old_button_mask);
 }
 
 bool VNCKeyMouse::left_button_up()
 {
     this->old_button_mask &= 0xFE;
-    return this->pointer_event(last_mouse_x, last_mouse_x, old_button_mask);
+    return this->pointer_event(last_mouse_x, last_mouse_y, old_button_mask);
 }
 
 bool VNCKeyMouse::right_button_down()
 {
     this->old_button_mask |= 4;     // bit 00000100
-    return this->pointer_event(last_mouse_x, last_mouse_x, old_button_mask);
+    return this->pointer_event(last_mouse_x, last_mouse_y, old_button_mask);
 }
 
 bool VNCKeyMouse::right_button_up()
 {
     this->old_button_mask &= 0xFB;
-    return this->pointer_event(last_mouse_x, last_mouse_x, old_button_mask);
+    return this->pointer_event(last_mouse_x, last_mouse_y, old_button_mask);
 }
 
 bool VNCKeyMouse::key_down(int key)

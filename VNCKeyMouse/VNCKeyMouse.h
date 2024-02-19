@@ -11,7 +11,7 @@ private:
 	bool is_connected;
 	uint16_t width;
 	uint16_t height;
-	//uint8_t old_key_byte_0;
+public:
 	uint16_t last_mouse_x;
 	uint16_t last_mouse_y;
 	uint8_t old_button_mask;
